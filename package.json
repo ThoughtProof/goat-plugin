@@ -1,0 +1,54 @@
+{
+  "name": "@thoughtproof/goat-plugin",
+  "version": "0.1.0",
+  "description": "ThoughtProof verification plugin for GOAT AgentKit - epistemic verification for AI agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@goatnetwork/agentkit": "^0.2.0"
+  },
+  "devDependencies": {
+    "@goatnetwork/agentkit": "^0.2.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "zod": "^3.24.2"
+  },
+  "dependencies": {
+    "zod": "^3.24.2"
+  },
+  "keywords": [
+    "goat",
+    "agentkit",
+    "thoughtproof",
+    "verification",
+    "ai-agents",
+    "epistemic",
+    "reasoning"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thoughtproof/goat-plugin"
+  },
+  "license": "MIT"
+}
