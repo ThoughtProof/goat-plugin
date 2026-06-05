@@ -84,7 +84,7 @@ describe('thoughtproof.sentinel', () => {
   it('calls adapter.sentinelVerify with correct input', async () => {
     const adapter = mockAdapter();
     const action = thoughtproofSentinelAction(adapter);
-    const input = { claim: 'Buy 0.5 ETH', context: 'Trading agent', task: 'Execute trade' };
+    const input = { claim: 'Buy 0.5 ETH', evidence: 'Trading agent context', mode: 'trade_execution' as const };
 
     const result = await action.execute(ctx, input);
 
@@ -425,7 +425,7 @@ describe('x402 payment handling', () => {
     await adapter.sentinelVerify({ claim: 'Test' });
 
     const callInit = (mockFetch as any).mock.calls[0][1];
-    expect(callInit.headers['Authorization']).toBe('Bearer sk-test-key');
+    expect(callInit.headers['X-Sentinel-Key']).toBe('sk-test-key');
   });
 
   it('skips apiKey header when x402Signer is provided', async () => {
@@ -444,7 +444,7 @@ describe('x402 payment handling', () => {
     await adapter.sentinelVerify({ claim: 'Test' });
 
     const callInit = (mockFetch as any).mock.calls[0][1];
-    expect(callInit.headers['Authorization']).toBeUndefined();
+    expect(callInit.headers['X-Sentinel-Key']).toBeUndefined();
   });
 
   it('isX402Enabled reflects signer presence', () => {

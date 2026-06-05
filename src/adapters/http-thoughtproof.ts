@@ -76,11 +76,15 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
     return !!this.x402Signer || this.fetchFn !== fetch;
   }
 
-  private headers(): Record<string, string> {
+  private headers(backend: 'sentinel' | 'rv' = 'rv'): Record<string, string> {
     const h: Record<string, string> = { 'Content-Type': 'application/json' };
     // API key auth only when NOT using x402
     if (this.apiKey && !this.x402Signer) {
-      h['Authorization'] = `Bearer ${this.apiKey}`;
+      if (backend === 'sentinel') {
+        h['X-Sentinel-Key'] = this.apiKey;
+      } else {
+        h['X-API-Key'] = this.apiKey;
+      }
     }
     return h;
   }
@@ -185,6 +189,7 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
     body: unknown,
     timeoutMs: number,
     signal?: AbortSignal,
+    backend: 'sentinel' | 'rv' = 'rv',
   ): Promise<unknown> {
     const start = Date.now();
 
@@ -197,7 +202,7 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
 
     const init: RequestInit = {
       method: 'POST',
-      headers: this.headers(),
+      headers: this.headers(backend),
       body: JSON.stringify(body),
       signal: makeSignal(),
     };
@@ -225,8 +230,9 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
   async sentinelVerify(input: SentinelVerifyInput, signal?: AbortSignal): Promise<SentinelVerifyOutput> {
     const body = {
       claim: input.claim,
-      ...(input.context && { context: input.context }),
-      ...(input.task && { task: input.task }),
+      evidence: input.evidence ?? '',
+      mode: input.mode ?? 'output_synthesis',
+      ...(input.tier && { tier: input.tier }),
     };
 
     const raw = await this.fetchWithTimeout(
@@ -234,13 +240,14 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
       body,
       this.sentinelTimeout,
       signal,
+      'sentinel',
     ) as Record<string, unknown>;
 
     return {
       verdict: raw.verdict as SentinelVerifyOutput['verdict'],
       confidence: (raw.confidence as number) ?? 0,
-      reasons: (raw.reasons as string[]) ?? [],
-      requestId: (raw.request_id as string) ?? (raw.requestId as string) ?? '',
+      reasons: [(raw.reasoning as string) ?? ''],
+      requestId: (raw.id as string) ?? (raw.request_id as string) ?? (raw.requestId as string) ?? '',
       latencyMs: raw._latencyMs as number,
     };
   }
@@ -254,7 +261,7 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
     };
 
     const raw = await this.fetchWithTimeout(
-      `${this.rvBase}/v1/verify`,
+      `${this.rvBase}/v1/check`,
       body,
       this.rvTimeout,
       signal,

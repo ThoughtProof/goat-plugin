@@ -4,8 +4,13 @@ import type { ThoughtProofAdapter, SentinelVerifyInput, SentinelVerifyOutput } f
 
 const inputSchema = z.object({
   claim: z.string().min(1, 'claim must not be empty — the agent reasoning or planned action to verify'),
-  context: z.string().optional().describe('Context or instructions the agent was given'),
-  task: z.string().optional().describe('The agent task or goal'),
+  evidence: z.string().optional().describe('Supporting evidence or context for the claim'),
+  mode: z.enum(['handoff', 'plan_revision', 'memory_write', 'output_synthesis', 'trade_execution'])
+    .optional()
+    .describe('Sentinel verification mode (default: output_synthesis)'),
+  tier: z.enum(['checkpoint', 'standard'])
+    .optional()
+    .describe('Verification tier: checkpoint (~$0.003, fast) or standard (~$0.005, cascade)'),
 });
 
 /**

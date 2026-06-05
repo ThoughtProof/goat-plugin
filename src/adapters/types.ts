@@ -1,9 +1,9 @@
 /**
  * ThoughtProof API adapter types.
  *
- * Two backend APIs:
- * - Sentinel: sentinel.thoughtproof.ai/sentinel/verify
- * - RV:      api.thoughtproof.ai/v1/verify
+* Two backend APIs:
+* - Sentinel: sentinel.thoughtproof.ai/sentinel/verify
+ * - RV:      api.thoughtproof.ai/v1/check
  */
 
 // ── Shared ──────────────────────────────────────────────────
@@ -72,13 +72,17 @@ export interface ThoughtProofConfig {
 
 // ── Sentinel ────────────────────────────────────────────────
 
+export type SentinelMode = 'handoff' | 'plan_revision' | 'memory_write' | 'output_synthesis' | 'trade_execution';
+
 export interface SentinelVerifyInput {
   /** The agent's reasoning or planned action to verify */
   claim: string;
-  /** Context / instructions the agent was given */
-  context?: string;
-  /** The agent's task or goal */
-  task?: string;
+  /** Supporting evidence for the claim */
+  evidence?: string;
+  /** Sentinel verification mode (default: output_synthesis) */
+  mode?: SentinelMode;
+  /** Verification tier: checkpoint (~$0.003, fast) or standard (~$0.005, cascade) */
+  tier?: 'checkpoint' | 'standard';
 }
 
 export interface SentinelVerifyOutput {
