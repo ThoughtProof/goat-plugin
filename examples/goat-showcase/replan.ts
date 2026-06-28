@@ -111,7 +111,7 @@ Respond ONLY with JSON:
       { role: 'system', content: 'You are a careful autonomous agent that revises its decisions when verification flags real problems. Output only valid JSON.' },
       { role: 'user', content: userMsg },
     ],
-    max_tokens: 1200,
+    max_tokens: 4000,
     temperature: 1,
     response_format: { type: 'json_object' as const },
   };
@@ -129,8 +129,12 @@ Respond ONLY with JSON:
       });
       if (!res.ok) throw new Error(`replan model error ${res.status}: ${await res.text().catch(() => '')}`);
       const data = await res.json() as any;
-      content = data?.choices?.[0]?.message?.content ?? '';
-      if (!content.trim()) throw new Error('no JSON decision (empty content)');
+      const msg = data?.choices?.[0]?.message ?? {};
+      // kimi-k2.6 is a reasoning model: it sometimes exhausts the token budget
+      // on reasoning_content and returns content=''. Fall back to reasoning_content
+      // (which may contain the JSON) before giving up.
+      content = (msg.content ?? '').trim() || (msg.reasoning_content ?? '').trim();
+      if (!content) throw new Error('no JSON decision (empty content)');
       const parsed = extractJson(content);
       const outcome = String(parsed.outcome ?? 'STAND_DOWN').toUpperCase();
       return {
