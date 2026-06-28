@@ -72,7 +72,7 @@ export interface ThoughtProofConfig {
 
 // ── Sentinel ────────────────────────────────────────────────
 
-export type SentinelMode = 'handoff' | 'plan_revision' | 'memory_write' | 'output_synthesis' | 'trade_execution';
+export type SentinelMode = 'handoff' | 'plan_revision' | 'memory_write' | 'output_synthesis' | 'trade_execution' | 'trade_reasoning' | 'action_authorization';
 
 export interface SentinelVerifyInput {
   /** The agent's reasoning or planned action to verify */
@@ -81,7 +81,7 @@ export interface SentinelVerifyInput {
   evidence?: string;
   /** Sentinel verification mode (default: output_synthesis) */
   mode?: SentinelMode;
-  /** Verification tier: checkpoint (~$0.003, fast) or standard (~$0.005, cascade) */
+  /** Verification tier: standard (DEFAULT, ~$0.008, nano→swift cascade) or checkpoint (~$0.005, nano solo) */
   tier?: 'checkpoint' | 'standard';
 }
 

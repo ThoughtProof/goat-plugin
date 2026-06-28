@@ -428,6 +428,44 @@ describe('x402 payment handling', () => {
     expect(callInit.headers['X-Sentinel-Key']).toBe('sk-test-key');
   });
 
+  it('defaults Sentinel tier to "standard" (nano→swift cascade) when none provided', async () => {
+    const mockFetch = vi.fn(async () =>
+      new Response(JSON.stringify({
+        verdict: 'ALLOW', confidence: 0.9, reasons: [], request_id: 'req_default_tier',
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+    ) as unknown as typeof fetch;
+
+    const adapter = new HttpThoughtProofAdapter({
+      apiKey: 'sk-test-key',
+      x402Fetch: mockFetch,
+    });
+
+    await adapter.sentinelVerify({ claim: 'Test' });
+
+    const callInit = (mockFetch as any).mock.calls[0][1];
+    const sentBody = JSON.parse(callInit.body as string);
+    expect(sentBody.tier).toBe('standard');
+  });
+
+  it('respects explicit checkpoint tier when provided', async () => {
+    const mockFetch = vi.fn(async () =>
+      new Response(JSON.stringify({
+        verdict: 'ALLOW', confidence: 0.9, reasons: [], request_id: 'req_checkpoint',
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } }),
+    ) as unknown as typeof fetch;
+
+    const adapter = new HttpThoughtProofAdapter({
+      apiKey: 'sk-test-key',
+      x402Fetch: mockFetch,
+    });
+
+    await adapter.sentinelVerify({ claim: 'Test', tier: 'checkpoint' });
+
+    const callInit = (mockFetch as any).mock.calls[0][1];
+    const sentBody = JSON.parse(callInit.body as string);
+    expect(sentBody.tier).toBe('checkpoint');
+  });
+
   it('skips apiKey header when x402Signer is provided', async () => {
     const mockFetch = vi.fn(async () =>
       new Response(JSON.stringify({

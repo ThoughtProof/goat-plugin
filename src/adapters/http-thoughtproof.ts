@@ -232,7 +232,10 @@ export class HttpThoughtProofAdapter implements ThoughtProofAdapter {
       claim: input.claim,
       evidence: input.evidence ?? '',
       mode: input.mode ?? 'output_synthesis',
-      ...(input.tier && { tier: input.tier }),
+      // Default to 'standard' (nano→swift cascade, $0.008, 0 False ALLOWs) —
+      // the backend's default tier. Only 'checkpoint' (nano solo, $0.005) is
+      // sent when the caller explicitly opts into the cheaper high-volume tier.
+      tier: input.tier ?? 'standard',
     };
 
     const raw = await this.fetchWithTimeout(
