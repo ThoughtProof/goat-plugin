@@ -7,14 +7,14 @@ Epistemic verification for AI agents — catch bad reasoning before it costs mon
 Autonomous agents hallucinate, drift from instructions, and make unsupported logical leaps. When agents control wallets, one bad output costs more than thousands of verification checks. ThoughtProof adds a verification layer between "agent decided" and "transaction sent."
 
 **Two products, one flow:**
-- **Sentinel** — fast pre-execution triage (~$0.003, ~2s). Call on every decision.
+- **Sentinel** — fast pre-execution triage (~$0.008, ~1-2s). Call on every decision.
 - **RV** — adversarial deep verification (~$0.02–0.08, 5–45s). Call when Sentinel is uncertain or stakes are high.
 
 ## Actions
 
 | Action | Purpose | Risk | Cost | Latency |
 |--------|---------|------|------|---------|
-| `thoughtproof.sentinel` | Pre-execution check (ALLOW / BLOCK / UNCERTAIN) | read | ~$0.003 | ~2s |
+| `thoughtproof.sentinel` | Pre-execution check (ALLOW / BLOCK / UNCERTAIN) | read | ~$0.008 | ~1-2s |
 | `thoughtproof.verify` | Adversarial reality verification (evaluate → critique → synthesize) | read | $0.02–0.08 | 5–45s |
 | `thoughtproof.attest` | On-chain attestation (EAS for Sentinel, TP-VC for RV) | medium | gas | ~10s |
 | `thoughtproof.status` | Health check both APIs | read | free | <1s |
@@ -24,7 +24,7 @@ Autonomous agents hallucinate, drift from instructions, and make unsupported log
 ```
 Agent decides action
   │
-  ├─► thoughtproof.sentinel (every decision, ~$0.003)
+  ├─► thoughtproof.sentinel (every decision, ~$0.008, standard cascade)
   │     ├── ALLOW     → Execute
   │     ├── BLOCK     → Stop
   │     └── UNCERTAIN → Escalate ─┐

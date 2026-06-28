@@ -94,6 +94,27 @@ describe('thoughtproof.sentinel', () => {
     expect(result.requestId).toBe('req_sentinel_001');
   });
 
+  it('accepts all live-backend modes through the Zod input schema', async () => {
+    const action = thoughtproofSentinelAction(mockAdapter());
+    // These must exactly match the modes the live Sentinel backend exposes
+    // (sentinel.thoughtproof.ai/sentinel/health → modes[]). If the backend
+    // adds a mode and the plugin schema lags, this is where it surfaces.
+    const liveModes = [
+      'handoff', 'plan_revision', 'memory_write', 'output_synthesis',
+      'trade_execution', 'trade_reasoning', 'action_authorization',
+    ];
+    for (const mode of liveModes) {
+      const parsed = action.zodInputSchema.safeParse({ claim: 'x', mode });
+      expect(parsed.success, `mode "${mode}" should pass schema`).toBe(true);
+    }
+  });
+
+  it('rejects an unknown Sentinel mode through the Zod input schema', async () => {
+    const action = thoughtproofSentinelAction(mockAdapter());
+    const parsed = action.zodInputSchema.safeParse({ claim: 'x', mode: 'not_a_real_mode' });
+    expect(parsed.success).toBe(false);
+  });
+
   it('passes signal from context', async () => {
     const adapter = mockAdapter();
     const action = thoughtproofSentinelAction(adapter);

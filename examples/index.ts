@@ -94,7 +94,7 @@ async function verifyAgentDecision(
 ): Promise<VerificationResult> {
   const ctx = makeContext(traceId);
 
-  // Step 1: Sentinel pre-check (~$0.003, ~2s)
+  // Step 1: Sentinel pre-check (~$0.008, ~1-2s)
   console.log('\n  → Running Sentinel pre-check...');
   const sentinelResult = await runtime.run(
     provider.get('thoughtproof.sentinel'),
@@ -239,7 +239,7 @@ async function main() {
   // Summary
   logSection('Demo Complete');
   console.log('  The ThoughtProof plugin provides:');
-  console.log('  • Sentinel: Fast pre-execution triage (~$0.003, ~2s)');
+  console.log('  • Sentinel: Fast pre-execution triage (~$0.008, ~1-2s)');
   console.log('  • RV: Adversarial deep verification (~$0.02-0.08, 5-45s)');
   console.log('  • Attest: On-chain attestation (EAS / TP-VC)');
   console.log('  • Automatic ERC-8004 reputation feedback (internal hook)');
